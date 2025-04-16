@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">  <!-- Установка кодировки документа -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Адаптивный дизайн для мобильных устройств -->
+    <title>Добавить столик</title>  <!-- Заголовок страницы -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">  <!-- Подключение CSS-стилей -->
+</head>
+<body>
+    <div class="container">  <!-- Контейнер для содержимого страницы -->
+        <h1 class="text-center">Добавить свободный столик</h1>  <!-- Заголовок страницы -->
+        <form method="POST">  <!-- Форма для добавления столика -->
+            {{ form.hidden_tag() }}  <!-- Скрытое поле для защиты от CSRF-атак -->
+            <div class="form-group">  <!-- Группа полей формы -->
+                {{ form.number.label(class="form-label") }}  <!-- Метка для поля "Номер столика" -->
+                {{ form.number(class="form-control") }}  <!-- Поле ввода для номера столика -->
+                {% for error in form.number.errors %}  <!-- Проверка на наличие ошибок в поле "Номер столика" -->
+                    <span style="color: red;">[{{ error }}]</span>  <!-- Отображение ошибок валидации -->
+                {% endfor %}
+            </div>
+            <div class="form-group">  <!-- Группа полей формы -->
+                {{ form.capacity.label(class="form-label") }}  <!-- Метка для поля "Вместимость" -->
+                {{ form.capacity(class="form-control") }}  <!-- Поле ввода для вместимости столика -->
+                {% for error in form.capacity.errors %}  <!-- Проверка на наличие ошибок в поле "Вместимость" -->
+                    <span style="color: red;">[{{ error }}]</span>  <!-- Отображение ошибок валидации -->
+                {% endfor %}
+            </div>
+            <div>  <!-- Контейнер для кнопки отправки -->
+                {{ form.submit(class="btn btn-primary") }}  <!-- Кнопка для отправки формы -->
+            </div>
+        </form>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Назад</a>  <!-- Кнопка для возврата на главную страницу -->
+    </div>
+</body>
+</html>

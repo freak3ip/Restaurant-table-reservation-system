@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход</title> <!-- Заголовок страницы -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> <!-- Подключение внешнего CSS файла для стилизации -->
+</head>
+<body>
+<div class="container"> <!-- Основной контейнер для содержимого страницы -->
+    <h1>Вход</h1> <!-- Заголовок формы входа -->
+    <form method="post"> <!-- Форма для входа, использующая метод POST для отправки данных -->
+        {{ form.hidden_tag() }} <!-- Скрытое поле для защиты от CSRF атак (если используется Flask-WTF) -->
+        <div class="form-group"> <!-- Группа для поля ввода имени пользователя -->
+            {{ form.username.label() }} <!-- Метка для поля имени пользователя -->
+            {{ form.username(class="form-control") }}<br> <!-- Поле ввода для имени пользователя с классом для стилизации -->
+        </div>
+        <div class="form-group"> <!-- Группа для поля ввода пароля -->
+            {{ form.password.label() }} <!-- Метка для поля пароля -->
+            {{ form.password(class="form-control") }}<br> <!-- Поле ввода для пароля с классом для стилизации -->
+        </div>
+        {{ form.submit(class="btn btn-primary") }} <!-- Кнопка для отправки формы с классом для стилизации -->
+    </form>
+    <a href="{{ url_for('register') }}" class="btn btn-secondary">Регистрация</a> <!-- Ссылка на страницу регистрации с классом для стилизации -->
+</div>
+</body>
+</html>

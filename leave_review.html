@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"> <!-- Устанавливает кодировку документа на UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Обеспечивает адаптивность страницы на мобильных устройствах -->
+    <title>Оставить отзыв - В гостях у Антонио</title> <!-- Заголовок страницы -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> <!-- Подключение внешнего CSS файла -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Подключение иконок Font Awesome -->
+</head>
+<body>
+    <header>
+        <h1>Оставить отзыв</h1> <!-- Заголовок страницы -->
+    </header>
+    <div class="container"> <!-- Основной контейнер для содержимого страницы -->
+        <section class="review-form"> <!-- Секция для формы отзыва -->
+            <h2>Ваш отзыв</h2> <!-- Заголовок секции формы -->
+            <form action="/submit-review" method="POST"> <!-- Форма для отправки отзыва -->
+                <label for="name">Имя:</label> <!-- Метка для поля имени -->
+                <input type="text" id="name" name="name" required> <!-- Поле ввода для имени, обязательное для заполнения -->
+
+                <label for="email">Электронная почта:</label> <!-- Метка для поля электронной почты -->
+                <input type="email" id="email" name="email" required> <!-- Поле ввода для электронной почты, обязательное для заполнения -->
+
+                <label for="review">Ваш отзыв:</label> <!-- Метка для текстового поля отзыва -->
+                <textarea id="review" name="review" required></textarea> <!-- Текстовое поле для отзыва, обязательное для заполнения -->
+
+                <button type="submit" class="btn-primary">Отправить отзыв</button> <!-- Кнопка для отправки отзыва -->
+            </form>
+            <a href="{{ url_for('index') }}" class="btn btn-back">Назад на главную</a> <!-- Ссылка для возврата на главную страницу -->
+        </section>
+
+        <section class="reviews-section"> <!-- Секция для отображения отзывов клиентов -->
+            <h2>Отзывы наших клиентов</h2> <!-- Заголовок секции отзывов -->
+            <div id="reviews-container"> <!-- Контейнер для динамического отображения отзывов -->
+                {% for review in reviews %} <!-- Цикл для отображения каждого отзыва -->
+                    <div class="review"> <!-- Блок для отдельного отзыва -->
+                        <h3>{{ review.name }}</h3> <!-- Имя автора отзыва -->
+                        <p>{{ review.text }}</p> <!-- Текст отзыва -->
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+    <footer>
+        <p>&copy; 2025 Ресторан "В гостях у Антонио". Все права защищены.</p> <!-- Футер с авторскими правами -->
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() { // Обработчик события, который срабатывает после загрузки страницы
+            fetch('/api/reviews') // Запрос к API для получения отзывов
+                .then(response => response.json()) // Преобразование ответа в JSON
+                .then(data => {
+                    const reviewsContainer = document.getElementById('reviews-container'); // Получаем контейнер для отзывов
+                    reviewsContainer.innerHTML = ''; // Очищаем контейнер перед добавлением новых отзывов
+                    data.forEach(review => { // Для каждого отзыва из полученных данных
+                        const reviewElement = document.createElement('div'); // Создаем новый элемент для отзыва
+                        reviewElement.classList.add('review'); // Добавляем класс для стилизации
+                        reviewElement.innerHTML = `
+                            <h3>${review.name}</h3> <!-- Имя автора отзыва -->
+                            <p>${review.text}</p> <!-- Текст отзыва -->
+                        `;
+                        reviewsContainer.appendChild(reviewElement); // Добавляем элемент отзыва в контейнер
+                    });
+                })
+                .catch(error => console.error('Ошибка при загрузке отзывов:', error)); // Обработка ошибок при загрузке
+        });
+
+        // Отключение кнопки отправки после первого нажатия
+        document.querySelector('form').addEventListener('submit', function() {
+            this.querySelector('button[type="submit"]').disabled = true; // О тключаем кнопку отправки, чтобы предотвратить повторные отправки формы
+        });
+    </script>
+</body>
+</html>
+<style>
+    /* Общие стили для страницы */
+body {
+    background-color: #f8f9fa; /* Светлый фон страницы */
+    font-family: 'Arial', sans-serif; /* Шрифт для текста */
+    color: #333; /* Цвет текста */
+    line-height: 1.6; /* Межстрочный интервал */
+}
+
+/* Контейнер */
+.container {
+    max-width: 1200px; /* Максимальная ширина контейнера */
+    margin: 0 auto; /* Центрирование контейнера */
+    padding: 20px; /* Отступы внутри контейнера */
+    background-color: white; /* Белый фон для контейнера */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Тень для контейнера */
+}
+
+/* Заголовки */
+h1, h2 {
+    color: #6f4c3e; /* Цвет заголовков */
+    text-align: center; /* Центрирование заголовков */
+    margin-bottom: 20px; /* Отступ снизу */
+    font-weight: bold; /* Жирный шрифт */
+}
+
+/* Стили для формы отзыва */
+.review-form {
+    margin-bottom: 40px; /* Отступ снизу для формы */
+}
+
+.review-form label {
+    display: block; /* Блоковое отображение для меток */
+    margin-bottom: 5px; /* Отступ снизу для меток */
+}
+
+.review-form input,
+.review-form textarea {
+    border: 1px solid #ccc; /* Светло-серый бордер для полей ввода */
+    border-radius: 5px; /* Закругленные углы */
+    padding: 10px; /* Отступы внутри полей */
+    width: 100%; /* Полная ширина полей */
+    transition: border-color 0.3s; /* Плавный переход цвета бордера */
+}
+
+.review-form input:focus,
+.review-form textarea:focus {
+    border-color: #d2691e; /* Цвет бордера при фокусе */
+    box-shadow: 0 0 5px rgba(210, 105, 30, 0.5); /* Тень при фокусе */
+}
+
+/* Кнопки */
+.btn-primary {
+    background-color: #d2691e; /* Цвет кнопки отправки */
+    border: none; /* Без бордера */
+    color: white; /* Белый текст на кнопке */
+    padding: 10px 20px; /* Отступы внутри кнопки */
+    border-radius: 5px; /* Закругленные углы кнопки */
+    transition: background-color 0.3s, transform 0.3s; /* Плавный переход для кнопки */
+    font-size: 1em; /* Размер шрифта для кнопки */
+    display: inline-block; /* Отображение кнопки как блочного элемента */
+    margin: 10px 0; /* Отступы для кнопки */
+}
+
+.btn-primary:hover {
+    background-color: #c65d3d; /* Темнее при наведении */
+    transform: scale(1.05); /* Увеличение при наведении */
+}
+
+.btn-back {
+    background-color: #6c757d; /* Цвет кнопки "Назад" */
+    border: none; /* Без бордера */
+    color: white; /* Белый текст на кнопке */
+    padding: 10px 20px; /* Отступы внутри кнопки */
+    border-radius: 5px; /* Закругленные углы кнопки */
+    transition: background-color 0.3s, transform 0.3s; /* Плавный переход для кнопки */
+}
+
+.btn-back:hover {
+    background-color: #5a6268; /* Темнее при наведении */
+    transform: scale(1.05); /* Увеличение при наведении */
+}
+
+/* Секция отзывов */
+.reviews-section {
+    margin-top: 40px; /* Отступ сверху для секции отзывов */
+}
+
+.reviews-section h2 {
+    margin-bottom: 20px; /* Отступ снизу для заголовка секции отзывов */
+}
+
+.review {
+    background-color: #fff; /* Белый фон для каждого отзыва */
+    border-radius: 8px; /* Закругленные углы для блока отзыва */
+    padding: 20px; /* Отступы внутри блока отзыва */
+    margin: 10px 0; /* Отступы между отзывами */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Тень для блока отзыва */
+    transition: transform 0.3s; /* Плавный переход для эффекта при наведении */
+}
+
+.review:hover {
+    transform: translateY(-5px); /* Подъем блока отзыва при наведении */
+}
+
+/* Заголовок отзыва */
+.review h3 {
+    margin: 0 0 10px; /* Отступы для заголовка отзыва */
+    font-size: 1.5em; /* Размер шрифта для заголовка */
+    color: #6f4c3e; /* Цвет заголовка отзыва */
+}
+
+/* Текст отзыва */
+.review p {
+    font-style: italic; /* Курсив для текста отзыва */
+    margin: 0; /* Убираем отступы */
+    color: #555; /* Темно-серый цвет для текста отзыва */
+}
+
+/* Имя автора отзыва */
+.review strong {
+    display: block; /* Переносим имя на новую строку */
+    margin-top: 10px; /* Отступ сверху для имени автора */
+    color: #d2691e; /* Цвет имени автора */
+    font-weight: bold; /* Жирный шрифт для имени автора */
+}
+
+/* Сообщения об ошибках и успехе в отзывах */
+.flash {
+    padding: 10px; /* Отступы для сообщения */
+    margin-bottom: 20px; /* Отступ снизу для сообщения */
+    border-radius: 5px; /* Закругленные углы для сообщения */
+    font-weight: bold; /* Жирный шрифт для сообщений */
+}
+
+.flash.success {
+    background-color: #d4edda; /* Зеленый фон для успешных сообщений */
+    color: #155724; /* Темно-зеленый текст для успешных сообщений */
+}
+
+.flash.danger {
+    background-color: #f8d7da; /* Красный фон для сообщений об ошибках */
+    color: #721c24; /* Темно-красный текст для сообщений об ошибках */
+}
+
+/* Футер */
+footer {
+    text-align: center; /* Центрирование текста в футере */
+    padding: 20px 0; /* Отступы сверху и снизу для футера */
+    background-color: #6f4c3e; /* Коричневый фон для футера */
+    color: #fff; /* Белый текст в футере */
+    position: relative; /* Позиционирование для футера */
+    bottom: 0; /* Прикрепляем футер к низу страницы */
+    width: 100%; /* Полная ширина футера */
+}
+
+/* Адаптивные стили */
+@media (max-width: 600px) {
+    .review-form {
+        margin-bottom: 20px; /* Уменьшаем отступы на мобильных устройствах */
+    }
+
+    .review {
+        width: 90%; /* Увеличиваем ширину отзыва на мобильных устройствах */
+    }
+}
+</style>

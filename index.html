@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">  <!-- Установка кодировки документа -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Адаптивный дизайн для мобильных устройств -->
+    <title>Ресторан "В гостях у Антонио"</title>  <!-- Заголовок страницы -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">  <!-- Подключение CSS-стилей -->
+</head>
+<body>
+<div class="container">
+    <!-- Меню навигации -->
+    <nav>
+        <ul class="nav-menu">
+            {% if current_user.role == 'client' %}
+                <li><a href="{{ url_for('book_table') }}" class="nav-link">Заказать столик</a></li>  <!-- Ссылка для клиентов на заказ столика -->
+                <li><a href="{{ url_for('view_reservations') }}" class="nav-link">Мои бронирования</a></li>  <!-- Ссылка для клиентов на просмотр бронирований -->
+            {% endif %}
+            <li><a href="{{ url_for('view_dishes') }}" class="nav-link">Меню блюд</a></li>  <!-- Ссылка на меню блюд -->
+            <li><a href="{{ url_for('view_tables') }}" class="nav-link">Свободные столики</a></li>  <!-- Ссылка на свободные столики -->
+            {% if current_user.role in ['admin', 'manager'] %}
+                <li><a href="{{ url_for('add_table') }}" class="nav-link">Добавить столик</a></li>  <!-- Ссылка для администраторов и менеджеров на добавление столика -->
+            {% endif %}
+            {% if current_user.role == 'admin' or current_user.role == 'manager' %}
+                <li><a href="{{ url_for('add_dish') }}" class="nav-link">Добавить блюдо</a></li>  <!-- Ссылка для администраторов и менеджеров на добавление блюда -->
+            {% endif %}
+            {% if current_user.role == 'manager' or current_user.role == 'admin' %}
+                <li><a href="{{ url_for('view_reservations') }}" class="nav-link">Просмотр бронирований</a></li>  <!-- Ссылка для администраторов и менеджеров на просмотр бронирований -->
+            {% endif %}
+            <li class="nav-right"><a href="{{ url_for('logout') }}" class="nav-link">Выйти</a></li>  <!-- Ссылка для выхода из системы -->
+        </ul>
+    </nav>
+
+    <!-- Заголовок -->
+    <h1>Добро пожаловать в ресторан "В гостях у Антонио"</h1>  <!-- Приветственный заголовок -->
+
+    <!-- О ресторане -->
+    <section class="about">
+        <h2>О нашем ресторане</h2>  <!-- Заголовок секции -->
+        <p>В нашем ресторане мы предлагаем лучшие блюда, приготовленные с любовью и вниманием к деталям. Наша команда профессионалов всегда готова сделать ваше пребывание у нас незабываемым.</p>
+        <p>Мы используем только свежие и качественные ингредиенты, чтобы каждый гость мог насладиться уникальными вкусами и атмосферой.</p>
+        <a href="{{ url_for('discover') }}" class="btn-primary">Узнать больше</a>  <!-- Кнопка для перехода на страницу с дополнительной информацией -->
+    </section>
+
+    <!-- Фотогалерея -->
+    <section class="gallery">
+        <h2>Наша галерея</h2>  <!-- Заголовок секции -->
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='images/dish1.jpg') }}" alt="Блюдо 1">  <!-- Изображение блюда 1 -->
+            </div>
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='images/dish2.jpg') }}" alt="Блюдо 2">  <!-- Изображение блюда 2 -->
+            </div>
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='images/dish3.jpg') }}" alt="Блюдо 3">  <!-- Изображение блюда 3 -->
+            </div>
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='images/dish4.jpg') }}" alt="Блюдо 4">  <!-- Изображение блюда 4 -->
+            </div>
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='images/restaurant_interior.jpg') }}" alt="Интерьер ресторана">  <!-- Изображение интерьера ресторана -->
+            </div>
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='images/restaurant_interior1.jpg') }}" alt="Интерьер ресторана">  <!-- Изображение интерьера1 ресторана -->
+            </div>
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='images/restaurant_interior2.jpg') }}" alt="Интерьер ресторана">  <!-- Изображение интерьера2 ресторана -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальное окно -->
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>  <!-- Кнопка закрытия модального окна -->
+        <img class="modal-content" id="img01">  <!-- Изображение в модальном окне -->
+        <div id="caption"></div>  <!-- Подпись к изображению -->
+    </div>
+
+    <!-- Отзывы клиентов -->
+    <section class="reviews">
+        <h2>Отзывы наших клиентов</h2>  <!-- Заголовок секции -->
+        <div class="review-container">
+            <div class="review">
+                <p>"Лучший ресторан в городе! Обслуживание на высшем уровне, а блюда просто восхитительны!"</p>
+                <p><strong>- Анна Петрова</strong></p>  <!-- Отзыв клиента -->
+            </div>
+            <div class="review">
+                <p>"Я всегда возвращаюсь сюда. Атмосфера очень уютная, а еда - просто божественная!"</p>
+                <p><strong>- Сергей Смирнов</strong></p>  <!-- Отзыв клиента -->
+            </div>
+            <div class="review">
+                <p>"Этот сайт — настоящий шедевр, который я создал! Он сочетает в себе уникальный дизайн,
+                    интуитивно понятный интерфейс и полезный контент. Каждая деталь продумана до мелочей,
+                    чтобы обеспечить пользователям максимальный комфорт и удовольствие от использования.
+                    Я горжусь тем, что смог реализовать свои идеи и создать нечто действительно выдающееся!"</p>
+                <p><strong>- Антон Чернов</strong></p>  <!-- Отзыв клиента -->
+            </div>
+        </div>
+        <a href="{{ url_for('leave_review') }}" class="btn-primary">Оставить отзыв</a>  <!-- Кнопка для оставления отзыва -->
+    </section>
+
+    <!-- Команда -->
+    <section class="team">
+        <h2>Наша команда</h2>  <!-- Заголовок секции -->
+        <div class="team-member">
+            <img src="{{ url_for('static', filename='images/images_team/manager.jpg') }}" alt="Менеджер" class="team-photo">  <!-- Изображение менеджера -->
+            <h3>Артём Сыбатов</h3>  <!-- Имя менеджера -->
+            <p>Менеджер</p>  <!-- Должность -->
+        </div>
+        <div class="team-member">
+            <img src="{{ url_for('static', filename='images/images_team/admin.jpg') }}" alt="Администратор" class="team-photo">  <!-- Изображение администратора -->
+            <h3>Антон Чернов и его Менеджер</h3>  <!-- Имя администратора -->
+            <p>Администратор</p>  <!-- Должность -->
+        </div>
+        <div class="team-member">
+            <img src="{{ url_for('static', filename='images/images_team/best_employee.jpg') }}" alt="Лучший сотрудник" class="team-photo">  <!-- Изображение лучшего сотрудника -->
+            <h3>Дмитрий Варсонофьев</h3>  <!-- Имя лучшего сотрудника -->
+            <p>Лучший сотрудник</p>  <!-- Должность -->
+        </div>
+    </section>
+
+    <!-- Контакты -->
+    <section class="contacts">
+        <h2>Контакты</h2>  <!-- Заголовок секции -->
+        <p><strong>Телефон:</strong> <a href="tel:+79003308909">+7 (900) 330-8909</a></p>  <!-- Контактный телефон -->
+        <p><strong>Адрес:</strong> Октябрьская ул., 19А, Шумерля, Чувашская Респ., 429120</p>  <!-- Адрес ресторана -->
+        <p><strong>Наша карта:</strong> <a href="https://maps.app.goo.gl/7LHGgLzRaEGis2qT8" target="_blank">Открыть на Google Maps</a></p>  <!-- Ссылка на карту -->
+        <p><strong>Создатель сайта:</strong> Чернов Антон</p>  <!-- Информация о создателе сайта -->
+        <p><strong>Социальные сети:</strong></p>  <!-- Заголовок для социальных сетей -->
+        <ul class="social-links">
+            <li><a href="https://www.facebook.com" target="_blank">Facebook</a></li>  <!-- Ссылка на Facebook -->
+            <li><a href="https://www.instagram.com" target="_blank">Instagram</a></li>  <!-- Ссылка на Instagram -->
+            <li><a href="https://www.twitter.com" target="_blank">Twitter</a></li>  <!-- Ссылка на Twitter -->
+            <li><a href="https://www.linkedin.com" target="_blank">LinkedIn</a></li>  <!-- Ссылка на LinkedIn -->
+        </ul>
+    </section>
+</ html>
+</div>
+</body>
+</html>
+
+<script>
+    // Получаем модальное окно
+    var modal = document.getElementById("myModal");
+
+    // Получаем изображения и модальное изображение
+    var images = document.querySelectorAll('.gallery-item img');
+    var modalImg = document.getElementById("img01");
+    var captionText = document.getElementById("caption");
+
+    // Добавляем обработчик событий для каждого изображения
+    images.forEach(function(image) {
+        image.onclick = function() {
+            modal.style.display = "block"; // Показываем модальное окно
+            modalImg.src = this.src; // Устанавливаем источник изображения
+            captionText.innerHTML = this.alt; // Устанавливаем подпись
+        }
+    });
+
+    // Получаем элемент <span>, который закрывает модальное окно
+    var span = document.getElementsByClassName("close")[0];
+
+    // Когда пользователь нажимает на <span> (x), закрываем модальное окно
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // Закрываем модальное окно при клике вне изображения
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>

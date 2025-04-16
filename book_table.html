@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">  <!-- Установка кодировки документа -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Адаптивный дизайн для мобильных устройств -->
+    <title>Забронировать столик</title>  <!-- Заголовок страницы -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">  <!-- Подключение CSS-стилей -->
+    <style>
+        /* Стили для изображений блюд */
+        .dish img {
+            width: 100px; /* Ширина изображения */
+            height: 100px; /* Высота изображения */
+            object-fit: cover; /* Масштабируем изображение, сохраняя соотношение сторон */
+            border-radius: 5px; /* Закругленные углы */
+            cursor: pointer; /* Указатель при наведении */
+        }
+
+        /* Стили для увеличенного изображения */
+        .enlarged-image {
+            position: fixed; /* Абсолютное позиционирование */
+            top: 50%; /* Вертикальное позиционирование */
+            left: 50%; /* Горизонтальное позиционирование */
+            transform: translate(-50%, -50%); /* Центрирование */
+            width: 80%; /* Ширина увеличенного изображения */
+            height: 80%; /* Высота увеличенного изображения */
+            object-fit: contain; /* Масштабируем изображение, сохраняя соотношение сторон */
+            border-radius: 10px; /* Закругленные углы */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Тень */
+            z-index: 1000; /* Индекс Z для отображения поверх других элементов */
+        }
+
+        /* Стили для контейнера увеличенного изображения */
+        .enlarged-image-container {
+            position: fixed; /* Абсолютное позиционирование */
+            top: 0; /* Вертикальное позиционирование */
+            left: 0; /* Горизонтальное позиционирование */
+            width: 100%; /* Ширина контейнера */
+            height: 100%; /* Высота контейнера */
+            background-color: rgba(0, 0, 0, 0.5); /* Цвет фона контейнера */
+            z-index: 999; /* Индекс Z для отображения поверх других элементов */
+            display: none; /* Скрытие контейнера */
+        }
+
+        /* Стили для блока блюда */
+        .dish {
+            border: 1px solid #ccc; /* Граница для маленьких окошек */
+            border-radius: 5px; /* Закругленные углы */
+            padding: 10px; /* Отступы внутри окошка */
+            margin-bottom: 15px; /* Отступ между окошками */
+            background-color: #f9f9f9; /* Цвет фона окошка */
+            display: flex; /* Используем flexbox для выравнивания */
+            flex-direction: column; /* Вертикальное расположение элементов */
+            align-items: flex-start; /* Выравнивание по левому краю */
+        }
+
+        /* Стили для кнопок изменения количества */
+        .quantity-buttons {
+            display: flex; /* Горизонтальное расположение кнопок */
+            gap: 5px; /* Промежуток между кнопками */
+            margin-top: 10px; /* Отступ сверху для кнопок */
+        }
+
+        .quantity-buttons button {
+            padding: 5px; /* Отступы для кнопок */
+            border: none; /* Убираем рамку */
+            background-color: #007bff; /* Цвет кнопок */
+            color: white; /* Цвет текста */
+            cursor: pointer; /* Указатель при наведении */
+        }
+
+        .quantity-buttons button:hover {
+            background-color: #0056b3; /* Темнее при наведении */
+        }
+
+        /* Стили для меню */
+        .menu {
+            margin-top: 20px; /* Отступ сверху для меню */
+        }
+
+        .menu-header {
+            background-color: #6f4c3e; /* Цвет заголовка меню */
+            color: white; /* Цвет текста заголовка */
+            padding: 10px; /* Отступы */
+            cursor: pointer; /* Указатель при наведении */
+        }
+
+        .menu-content {
+            display: none; /* Скрываем содержимое по умолчанию */
+            padding: 10px; /* Отступы для содержимого */
+            background-color: #f9f9f - 9; /* Цвет фона содержимого */
+            border: 1px solid #ccc; /* Граница содержимого */
+        }
+
+        /* Стили для сообщений об ошибках */
+        .alert {
+            color: red; /* Цвет текста для ошибок */
+            margin-bottom: 15px; /* Отступ снизу для ошибок */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Забронировать столик</h1>
+        <form method="post">
+            {{ form.hidden_tag() }}  <!-- Это важно для CSRF защиты -->
+
+            <!-- Отображение ошибок валидации -->
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            <div class="form-group">
+                <label for="table_id">Столик:</label>
+                {{ form.table_id(class="form-control", onchange="updateCapacity()") }}  <!-- Используйте метод формы для отображения поля -->
+                <small class="form-text text-muted">Выберите столик и укажите количество человек.</small>
+            </div>
+            <div class="form-group">
+                <label for="client_name">Имя клиента:</label>
+                {{ form.client_name(class="form-control", required=True) }}  <!-- Используйте метод формы для отображения поля -->
+            </div>
+            <div class="form-group">
+                <label for="reservation_datetime">Дата и время:</label>
+                {{ form.reservation_datetime(class="form-control", type="datetime-local") }}  <!-- Используйте type="datetime-local" -->
+            </div>
+            <div class="form-group">
+                <label for="number_of_people">Количество человек:</label>
+                {{ form.number_of_people(class="form-control", min=1, required=True) }}  <!-- Используйте метод формы для отображения поля -->
+            </div>
+
+            <h2>Выберите блюда (необязательно)</h2>
+            <div class="menu">
+                <div class="menu-header" onclick="toggleMenu(this)">
+                    Меню блюд
+                </div>
+                <div class="menu-content">
+                    {% for dish in dishes %}
+                    <div class="dish">
+                        <h3>{{ dish.name }}</h3>
+                        <p>{{ dish.description }}</p>
+                        <p>Цена: {{ dish.price }}₽</p>
+                        <img src="data:image/jpeg;base64,{{ dish.image_data|b64encode }}" alt="{{ dish.name }}">
+                        <div class="quantity-buttons">
+                            <button type="button" onclick="updateQuantity('{{ dish.id }}', -1)">-</button>
+                            <input type="number" id ="quantity_{{ dish.id }}" name="quantity_{{ dish.id }}" value="0" min="0" style="width: 50px; text-align: center;">
+                            <button type="button" onclick="updateQuantity('{{ dish.id }}', 1)">+</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Забронировать</button>
+        </form>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Назад</a>
+    </div>
+
+    <script>
+        function toggleMenu(header) {
+            const content = header.nextElementSibling;
+            content.style.display = content.style.display === "block" ? "none" : "block";
+        }
+
+        function updateQuantity(dishId, change) {
+            const quantityInput = document.getElementById(`quantity_${dishId}`);
+            let currentQuantity = parseInt(quantityInput.value) || 0;
+            currentQuantity += change;
+            if (currentQuantity < 0) currentQuantity = 0;
+            quantityInput.value = currentQuantity;
+        }
+
+        function enlargeImage(image) {
+            const enlargedImageContainer = document.createElement('div');
+            enlargedImageContainer.classList.add('enlarged-image-container');
+            document.body.appendChild(enlargedImageContainer);
+
+            const enlargedImage = document.createElement('img');
+            enlargedImage.classList.add('enlarged-image');
+            enlargedImage.src = image.src;
+            enlargedImageContainer.appendChild(enlargedImage);
+
+            enlargedImageContainer.style.display = 'block'; // Показываем контейнер
+
+            function closeEnlargedImage(event) {
+                if (event.target === enlargedImageContainer) {
+                    enlargedImageContainer.remove();
+                    document.removeEventListener('click', closeEnlargedImage);
+                }
+            }
+
+            document.addEventListener('click', closeEnlargedImage);
+        }
+
+        document.querySelectorAll('.dish img').forEach(image => {
+            image.addEventListener('click', () => enlargeImage(image));
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">  <!-- Установка кодировки документа -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Адаптивный дизайн для мобильных устройств -->
+    <title>Просмотреть заказы</title>  <!-- Заголовок страницы -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">  <!-- Подключение CSS-стилей -->
+</head>
+<body>
+    <div class="container">  <!-- Контейнер для содержимого страницы -->
+        <h1>Заказы для резервации {{ reservation.id }}</h1>  <!-- Заголовок с ID резервации -->
+        {% if orders %}  <!-- Проверка, есть ли заказы -->
+            <table class="table">  <!-- Таблица для отображения заказов -->
+                <thead>
+                    <tr>
+                        <th>Название блюда</th>  <!-- Заголовок столбца для названия блюда -->
+                        <th>Количество</th>  <!-- Заголовок столбца для количества -->
+                        <th>Цена</th>  <!-- Заголовок столбца для цены -->
+                        {% if current_user.role not in ['admin', 'manager'] %}  <!-- Проверка роли пользователя -->
+                            <th>Действия</th>  <!-- Заголовок столбца для действий (например, отмена заказа) -->
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}  <!-- Перебор всех заказов -->
+                    <tr>
+                        <td>{{ order.dish.name }}</td>  <!-- Отображаем название блюда -->
+                        <td>{{ order.quantity }}</td>  <!-- Отображаем количество -->
+                        <td>{{ order.dish.price * order.quantity }}₽</td>  <!-- Отображаем общую цену для этого заказа -->
+                        {% if current_user.role not in ['admin', 'manager'] %}  <!-- Проверка роли пользователя -->
+                        <td>
+                            <form action="{{ url_for('cancel_order', order_id=order.id) }}" method="POST" style="display:inline;">  <!-- Форма для отмены заказа -->
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите отменить этот заказ?');">Отменить</button>  <!-- Кнопка для отмены заказа с подтверждением -->
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h3>Общая сумма: {{ total_amount }}₽</h3>  <!-- Отображаем общую сумму всех заказов -->
+        {% else %}
+            <p>У вас нет заказов для этой резервации.</p>  <!-- Сообщение, если заказов нет -->
+        {% endif %}
+
+        <a href="{{ url_for('view_reservations') }}" class="btn btn-secondary">Назад</a>  <!-- Кнопка для возврата на страницу бронирований -->
+    </div>
+</body>
+</html>

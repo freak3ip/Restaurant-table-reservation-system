@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать блюдо</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Редактировать блюдо</h1> <!-- Заголовок страницы -->
+
+    <!-- Шаблон для редактирования блюда -->
+    <form method="POST" enctype="multipart/form-data"> <!-- Добавляем enctype для загрузки файлов -->
+        {{ form.hidden_tag() }} <!-- Скрытое поле для защиты от CSRF атак -->
+
+        <div class="form-group">
+            {{ form.name.label() }} <!-- Метка для названия блюда -->
+            {{ form.name(class="form-control") }} <!-- Поле ввода для названия блюда -->
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label() }} <!-- Метка для описания блюда -->
+            {{ form.description(class="form-control") }} <!-- Поле ввода для описания блюда -->
+        </div>
+
+        <div class="form-group">
+            {{ form.price.label() }} <!-- Метка для цены блюда -->
+            {{ form.price(class="form-control") }} <!-- Поле ввода для цены блюда -->
+        </div>
+
+        <div class="form-group">
+            <label>Текущее изображение:</label> <!-- Метка для текущего изображения -->
+            <img src="data:image/jpeg;base64,{{ dish.image_data|b64encode }}" alt="{{ dish.name }}" style="width: 100px; height: 100px;"> <!-- Отображение текущего изображения -->
+        </div>
+
+        <div class="form-group">
+            {{ form.image.label() }} <!-- Метка для загрузки нового изображения -->
+            {{ form.image(class="form-control") }} <!-- Поле для загрузки нового изображения -->
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button> <!-- Кнопка для отправки формы -->
+    </form>
+
+    <a href="{{ url_for('view_dishes') }}" class="btn btn-secondary">Назад</a> <!-- Ссылка для возврата на страницу со всеми блюдами -->
+</div>
+</body>
+</html>
